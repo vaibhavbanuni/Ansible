@@ -1,3 +1,5 @@
+## In this code we have install docker and important pack and also run jenkins as docker container
+
 ---
 - name: Install Docker and Jenkins
   hosts: dev  
