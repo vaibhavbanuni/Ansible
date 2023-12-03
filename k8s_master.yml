@@ -1,0 +1,56 @@
+---
+- name: Set up Kubernetes Master Node
+  hosts: k8s-master
+  become: true
+  tasks:
+    - name: Check if swap is enabled
+      command: swapon --show
+      register: swap_status
+      ignore_errors: yes
+
+    - name: Disable swap
+      command: swapoff -a
+  
+
+    - name: Remove swap entry from /etc/fstab
+      lineinfile:
+        path: /etc/fstab
+        regexp: '^.*\sswap\s.*$'
+        state: absent
+  
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Add Kubernetes apt key
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
+    - name: Add Kubernetes apt repository
+      apt_repository:
+        repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+
+    - name: Install Kubernetes packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - kubelet
+        - kubeadm
+        - kubectl
+
+    - name: Initialize Kubernetes master
+      command:  kubeadm init --pod-network-cidr=172.16.0.0/16 --apiserver-advertise-address=192.168.0.103  --ignore-preflight-errors=all
+    
+
+    - name: Copy Kubernetes admin.conf to user's home directory
+      command: "{{ item }}"
+      loop:
+        - mkdir -p $HOME/.kube
+        - sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+        - sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
