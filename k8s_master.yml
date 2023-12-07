@@ -44,7 +44,7 @@
         - kubectl
 
     - name: Initialize Kubernetes master
-      command:  kubeadm init --pod-network-cidr=172.16.0.0/16 --apiserver-advertise-address=192.168.0.103  --ignore-preflight-errors=all
+      command:  kubeadm init --pod-network-cidr=172.16.0.0/16 --apiserver-advertise-address=192.168.0.103 
     
 
     - name: Copy Kubernetes admin.conf to user's home directory
